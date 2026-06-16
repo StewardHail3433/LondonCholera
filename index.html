@@ -37,7 +37,7 @@
             flex-direction: column;
             overflow-y: auto;
             box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.15);
-align-items: center;
+            align-items: center;
             justify-content: center;
         }
 
@@ -68,29 +68,31 @@ align-items: center;
         }
 
         .store {
-    background-color: #7c4803;
-    border-radius: 10px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    padding: 10px 0; 
-}
+            background-color: #7c4803;
+            border-radius: 10px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 10px 0;
+        }
 
-.store_button {
-    font-size: 20px;
-    margin: 0 10px; 
-    width: auto;    
-    align-self: stretch; 
-}
+        .store_button {
+            font-size: 20px;
+            margin: 0 10px;
+            width: auto;
+            align-self: stretch;
+        }
+
         .grid {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
             grid-template-rows: repeat(10, 1fr);
         }
-button {
-background-color: rgb(215, 220, 220);
-}
+
+        button {
+            background-color: rgb(215, 220, 220);
+        }
     </style>
 </head>
 
@@ -126,120 +128,111 @@ background-color: rgb(215, 220, 220);
                 <button class="store_button" onclick="buy('air')">Clean Dirty Air ༄ ($150)</button>
             </div>
             <hr style="border: none; border-top: 5px solid #ccab34; margin: 0 0 10px 0;" />
-            <button class="year_button" onclick="progressYear('air')">Progress in History (Heading To Year <span id="next_year"></span>)</button>
+            <button class="year_button" onclick="progressYear('air')">Progress in History (Heading To Year <span
+                    id="next_year"></span>)</button>
         </div>
         <div class="sim" id="simulation">
             <div class="grid" id="sim-grid">
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
-                <button>E</button>
+                <button onclick="tileClicked(1, 10)">E</button>
+                <button onclick="tileClicked(2, 10)">E</button>
+                <button onclick="tileClicked(3, 10)">E</button>
+                <button onclick="tileClicked(4, 10)">E</button>
+                <button onclick="tileClicked(5, 10)">E</button>
+                <button onclick="tileClicked(6, 10)">E</button>
+                <button onclick="tileClicked(7, 10)">E</button>
+                <button onclick="tileClicked(8, 10)">E</button>
+                <button onclick="tileClicked(9, 10)">E</button>
+                <button onclick="tileClicked(10, 10)">E</button>
+                <button onclick="tileClicked(1, 9)">E</button>
+                <button onclick="tileClicked(2, 9)">E</button>
+                <button onclick="tileClicked(3, 9)">E</button>
+                <button onclick="tileClicked(4, 9)">E</button>
+                <button onclick="tileClicked(5, 9)">E</button>
+                <button onclick="tileClicked(6, 9)">E</button>
+                <button onclick="tileClicked(7, 9)">E</button>
+                <button onclick="tileClicked(8, 9)">E</button>
+                <button onclick="tileClicked(9, 9)">E</button>
+                <button onclick="tileClicked(10, 9)">E</button>
+                <button onclick="tileClicked(1, 8)">E</button>
+                <button onclick="tileClicked(2, 8)">E</button>
+                <button onclick="tileClicked(3, 8)">E</button>
+                <button onclick="tileClicked(4, 8)">E</button>
+                <button onclick="tileClicked(5, 8)">E</button>
+                <button onclick="tileClicked(6, 8)">E</button>
+                <button onclick="tileClicked(7, 8)">E</button>
+                <button onclick="tileClicked(8, 8)">E</button>
+                <button onclick="tileClicked(9, 8)">E</button>
+                <button onclick="tileClicked(10, 8)">E</button>
+                <button onclick="tileClicked(1, 7)">E</button>
+                <button onclick="tileClicked(2, 7)">E</button>
+                <button onclick="tileClicked(3, 7)">E</button>
+                <button onclick="tileClicked(4, 7)">E</button>
+                <button onclick="tileClicked(5, 7)">E</button>
+                <button onclick="tileClicked(6, 7)">E</button>
+                <button onclick="tileClicked(7, 7)">E</button>
+                <button onclick="tileClicked(8, 7)">E</button>
+                <button onclick="tileClicked(9, 7)">E</button>
+                <button onclick="tileClicked(10, 7)">E</button>
+                <button onclick="tileClicked(1, 6)">E</button>
+                <button onclick="tileClicked(2, 6)">E</button>
+                <button onclick="tileClicked(3, 6)">E</button>
+                <button onclick="tileClicked(4, 6)">E</button>
+                <button onclick="tileClicked(5, 6)">E</button>
+                <button onclick="tileClicked(6, 6)">E</button>
+                <button onclick="tileClicked(7, 6)">E</button>
+                <button onclick="tileClicked(8, 6)">E</button>
+                <button onclick="tileClicked(9, 6)">E</button>
+                <button onclick="tileClicked(10, 6)">E</button>
+                <button onclick="tileClicked(1, 5)">E</button>
+                <button onclick="tileClicked(2, 5)">E</button>
+                <button onclick="tileClicked(3, 5)">E</button>
+                <button onclick="tileClicked(4, 5)">E</button>
+                <button onclick="tileClicked(5, 5)">E</button>
+                <button onclick="tileClicked(6, 5)">E</button>
+                <button onclick="tileClicked(7, 5)">E</button>
+                <button onclick="tileClicked(8, 5)">E</button>
+                <button onclick="tileClicked(9, 5)">E</button>
+                <button onclick="tileClicked(10, 5)">E</button>
+                <button onclick="tileClicked(1, 4)">E</button>
+                <button onclick="tileClicked(2, 4)">E</button>
+                <button onclick="tileClicked(3, 4)">E</button>
+                <button onclick="tileClicked(4, 4)">E</button>
+                <button onclick="tileClicked(5, 4)">E</button>
+                <button onclick="tileClicked(6, 4)">E</button>
+                <button onclick="tileClicked(7, 4)">E</button>
+                <button onclick="tileClicked(8, 4)">E</button>
+                <button onclick="tileClicked(9, 4)">E</button>
+                <button onclick="tileClicked(10, 4)">E</button>
+                <button onclick="tileClicked(1, 3)">E</button>
+                <button onclick="tileClicked(2, 3)">E</button>
+                <button onclick="tileClicked(3, 3)">E</button>
+                <button onclick="tileClicked(4, 3)">E</button>
+                <button onclick="tileClicked(5, 3)">E</button>
+                <button onclick="tileClicked(6, 3)">E</button>
+                <button onclick="tileClicked(7, 3)">E</button>
+                <button onclick="tileClicked(8, 3)">E</button>
+                <button onclick="tileClicked(9, 3)">E</button>
+                <button onclick="tileClicked(10, 3)">E</button>
+                <button onclick="tileClicked(1, 2)">E</button>
+                <button onclick="tileClicked(2, 2)">E</button>
+                <button onclick="tileClicked(3, 2)">E</button>
+                <button onclick="tileClicked(4, 2)">E</button>
+                <button onclick="tileClicked(5, 2)">E</button>
+                <button onclick="tileClicked(6, 2)">E</button>
+                <button onclick="tileClicked(7, 2)">E</button>
+                <button onclick="tileClicked(8, 2)">E</button>
+                <button onclick="tileClicked(9, 2)">E</button>
+                <button onclick="tileClicked(10, 2)">E</button>
+                <button onclick="tileClicked(1, 1)">E</button>
+                <button onclick="tileClicked(2, 1)">E</button>
+                <button onclick="tileClicked(3, 1)">E</button>
+                <button onclick="tileClicked(4, 1)">E</button>
+                <button onclick="tileClicked(5, 1)">E</button>
+                <button onclick="tileClicked(6, 1)">E</button>
+                <button onclick="tileClicked(7, 1)">E</button>
+                <button onclick="tileClicked(8, 1)">E</button>
+                <button onclick="tileClicked(9, 1)">E</button>
+                <button onclick="tileClicked(10, 1)">E</button>
             </div>
         </div>
         <div class="panel" id="primary_sources_panel">
@@ -247,8 +240,21 @@ background-color: rgb(215, 220, 220);
             <hr style="border: none; border-top: 5px solid #ccab34; margin: 0 0 10px 0;" />
             <div id="primary_sources"></div>
         </div>
-
     </div>
+    <script>
+        let selectedType = "";
+        let typePrices = [
+            ["house", 150],
+            ["pump", 75],
+            ["air", 150]
+        ]
+        function buy(type) {
+            selectedType = type;
+        }
+        function tileClicked(x, y) {
+            alert(x + ", " + y);
+        }
+    </script>
 </body>
 
 </html>
