@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            background-color: #ccab34;
+        }
+
+        #game-area {
+            display: flex;
+            gap: 15px;
+        }
+
+        .panel {
+            flex: 1;
+            background-color: rgb(255, 220, 133);
+            border: 5px double rgb(216, 173, 53);
+            border-radius: 6px;
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .sim {
+            flex: 1;
+            background-color: rgb(205, 175, 101);
+            ;
+            border: 7px double rgb(108, 85, 19);
+            border-radius: 6px;
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat {
+            background-color: #7c4803;
+            border-radius: 10px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat_name {
+            font-size: 20px;
+        }
+
+        .stat_number {
+            color: rgb(201, 119, 11);
+            padding-left: 5px;
+            font-size: 30px;
+        }
+
+        .store {
+            background-color: #7c4803;
+            border-radius: 10px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .store_button {
+            font-size: 20px;
+            margin: 10px;
+            width: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1></h1>
+    <div id="game-area">
+        <div class="panel" id="game_changes">
+            <h2 style="margin-bottom: 5px;">Stats</h2>
+            <hr style="border: none; border-top: 5px solid #ccab34; margin: 0 0 10px 0;" />
+            <div class="stats" id="stats">
+                <div class="stat">
+                    <div class="stat_name">Money: </div>
+                    <div class="stat_number" id="stat-money">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat_name">People: </div>
+                    <div class="stat_number" id="stat-money">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat_name">Death: </div>
+                    <div class="stat_number" id="stat-money">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat_name">Year: </div>
+                    <div class="stat_number" id="stat-year">0</div>
+                </div>
+            </div>
+            <h2>Store</h2>
+            <hr style="border: none; border-top: 5px solid #ccab34; margin: 0 0 10px 0;" />
+            <div class="store">
+                <button class="store_button" onclick="buy('house')">Buy a Tenament 🏠 ($100)</button>
+                <button class="store_button" onclick="buy('pump')">Buy a Water Pump 🚰 ($75)</button>
+                <button class="store_button" onclick="buy('air')">Clean Dirty Air ༄ ($150)</button>
+            </div>
+            <hr style="border: none; border-top: 5px solid #ccab34; margin: 0 0 10px 0;" />
+            <button class="year_button" onclick="progressYear('air')">Progress in History (Heading To Year <span id="next_year"></span>)</button>
+        </div>
+        <div class="sim" id="simulation">
+            <div class="grid" id="sim-grid"></div>
+        </div>
+        <div class="panel" id="primary_sources_panel">
+            <h2>Timeline through Priamry Sources</h2>
+            <hr style="border: none; border-top: 5px solid #ccab34; margin: 0 0 10px 0;" />
+            <div id="primary_sources"></div>
+        </div>
+
+    </div>
+</body>
+
+</html>
