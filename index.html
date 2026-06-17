@@ -315,8 +315,8 @@ updateMoney();
         }
         function progressYear() {
              for(let i = 0; i < years.length-1; i++) {
-if(years[i] == currentYear) {
-currentYear = year;
+if(years[i].year == currentYear) {
+currentYear = years[i].year;
 document.getElementById("stat_year") = currentYear;
 }
         }
