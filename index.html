@@ -131,7 +131,7 @@
                 <button class="store_button" onclick="buy('air')">Clean Dirty Air ༄ ($150)</button>
             </div>
             <hr style="border: none; border-top: 5px solid #ccab34; margin: 0 0 10px 0;" />
-            <button class="year_button" onclick="progressYear('air')">Progress in History (Heading To Year <span
+            <button class="year_button" onclick="progressYear()" id="year_button">Progress in History (Heading To Year <span
                     id="next_year"></span>)</button>
         </div>
         <div class="sim" id="simulation">
@@ -255,6 +255,8 @@
         let houseTiles = [];
         let pumpTiles = [];
         let factoryTiles = [];
+let years = [{year: 1813, text: "primary source", credits: "thanks to primary source"}];
+let currentYear = years[0].year;
         
         function buy(type) {
             
@@ -266,6 +268,9 @@
 
             alert(type);
         }
+function updateMoney() {
+     document.getElementById("stat_money").innerHTML = "$" + money;
+}
         function tileClicked(x, y, button) {
             alert(x + ", " + y);
             if(selectedType != "") {
@@ -278,6 +283,7 @@
                                 money -= typePrices[0][1];
                                 houseTiles.push([x, y]);
                                 button.innerHTML = "🏠";
+updateMoney();
                             } else {
                                 alert("You dont got the funds");
                             }
@@ -286,7 +292,8 @@
                             if(money >= typePrices[1][1]) {
                                 money -= typePrices[1][1];
                                 pumpTiles.push([x, y]);
-                                button.innerHTML = "🏠";
+                                button.innerHTML = "🚰";
+updateMoney();
                             } else {
                                 alert("You dont got the funds");
                             }
@@ -294,6 +301,7 @@
                         case "air":
                             if(money >= typePrices[2][1]) {
                                 money -= typePrices[2][1];
+updateMoney();
                             } else {
                                 alert("You dont got the funds");
                             }
@@ -305,9 +313,14 @@
                 }
             }
         }
-        function matchTile() {
-
+        function progressYear() {
+             for(let i = 0; i < years.length-1; i++) {
+if(years[i] == currentYear) {
+currentYear = year;
+document.getElementById("stat_year") = currentYear;
+}
         }
+updateMoney();
     </script>
 </body>
 
