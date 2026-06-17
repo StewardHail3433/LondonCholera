@@ -4,7 +4,7 @@
 <head>
     <style>
         body {
-            background-color: #ccab34;
+            background-color: rgb(255,0,255);
         }
 
         #game-area {
@@ -256,7 +256,7 @@
         let pumpTiles = [];
         let factoryTiles = [];
 let years = [{year: 1813, text: "primary source", credits: "thanks to primary source"}];
-let currentYear = years[0].year;
+let currentYear = 0;
         
         function buy(type) {
             
@@ -314,11 +314,11 @@ updateMoney();
             }
         }
         function progressYear() {
-             for(let i = 0; i < years.length-1; i++) {
-if(years[i].year == currentYear) {
-currentYear = years[i].year;
+             //for(let i = 0; i < years.length-1; i++) {
+//if(years[i].year == currentYear) {
+currentYear = currentYear++;
 document.getElementById("stat_year") = currentYear;
-}
+//}
         }
 updateMoney();
     </script>
