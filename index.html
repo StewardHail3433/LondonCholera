@@ -4,12 +4,20 @@
 <head>
     <style>
         body {
-            background-color: rgb(255,0,255);
+            background-color: #ccab34;
         }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
 
         #game-area {
             display: flex;
             gap: 15px;
+            height: 100vh;
         }
 
         .panel {
@@ -23,6 +31,8 @@
             flex-direction: column;
             overflow-y: auto;
             box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            min-height: 0;
         }
 
         .sim {
@@ -45,7 +55,6 @@
         .stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(2, 1fr);
             gap: 10px;
         }
 
@@ -93,17 +102,173 @@
             width: 100%;
         }
 
-        button {
+        .grid button {
             background-color: rgb(215, 220, 220);
+            aspect-ratio: 1 / 1;
+            width: 100%;
+            min-width: 0;
+            min-height: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: clamp(12px, 2vw, 24px);
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .selected {
+            background-color: green;
+            color: white;
+        }
+
+        #panel-controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgb(255, 220, 133);
+            border: 5px double rgb(216, 173, 53);
+            border-radius: 6px;
+            flex-wrap: wrap;
+        }
+
+        #panel-controls label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #people-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .person {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            z-index: 100;
+        }
+
+        .grave {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            z-index: 100;
+        }
+
+        #grid-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+        }
+
+        #sim-grid {
+            position: absolute;
+            inset: 0;
+        }
+
+        #people-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        #primary_sources {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        #start-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .overlay-box {
+            background: #fff2c7;
+            padding: 25px;
+            border-radius: 12px;
+            width: min(500px, 90%);
+            text-align: center;
+            border: 5px double #ccab34;
+        }
+
+        .overlay-box ul {
+            text-align: left;
+        }
+
+        .overlay-box button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
         }
     </style>
 </head>
 
 <body>
+    <div id="start-overlay">
+        <div class="overlay-box" id="alerttx">
+            <h1>London Cholera Simulation Game</h1>
+
+            <p>
+                Manage population that survives a simulation of cholera in London
+            </p>
+
+            <h3>Rules</h3>
+            <ul>
+                <li>🙂 People have differnt mode
+                    <br>
+                    <ul>
+                        <li>🙂 - idle/roam</li>
+                        <li>👷🏽‍♂️ - working</li>
+                        <li>🥵 - in need of water</li>
+                        <li>🪦 - dead</li>
+                    </ul>
+                </li>
+                <li>🚰 Water reduces death if a person can reach in time before dyhration</li>
+                <li>🏭 Factories generate money when workersreach them</li>
+                <li>🏠 Houses increase population capacity (+3)</li>
+                <li>༄ Clean the air to try and stop the spread of cholera</li>
+                <li>🪦 People are dying due to cholera but now one knows how it spread </li>
+                <li>Population may grow up slowly </li>
+                <li>Progress in time to learn about what can be done to stop the spread </li>
+            </ul>
+
+            <button onclick="startGame()">Start Simulation</button>
+        </div>
+    </div>
     <h1></h1>
+    <div id="panel-controls">
+        Size Manipulator:
+        <label>
+            Stats:
+            <input type="range" id="stats-slider" min="1" max="6" value="2">
+        </label>
+
+        <label>
+            Simulation:
+            <input type="range" id="sim-slider" min="1" max="10" value="5">
+        </label>
+
+        <label>
+            Sources:
+            <input type="range" id="source-slider" min="1" max="6" value="2">
+        </label>
+    </div>
     <div id="game-area">
         <div class="panel" id="game_changes">
-            <h2 style="margin-bottom: 5px;">Stats</h2>
+            <h2 style="margin-bottom: 5px;">Statistics</h2>
             <hr style="border: none; border-top: 5px solid #ccab34; margin: 0 0 10px 0;" />
             <div class="stats" id="stats">
                 <div class="stat">
@@ -112,11 +277,11 @@
                 </div>
                 <div class="stat">
                     <div class="stat_name">People: </div>
-                    <div class="stat_number" id="stat-money">0</div>
+                    <div class="stat_number" id="stat-people">0</div>
                 </div>
                 <div class="stat">
-                    <div class="stat_name">Death: </div>
-                    <div class="stat_number" id="stat-money">0</div>
+                    <div class="stat_name">Deaths: </div>
+                    <div class="stat_number" id="stat-deaths">0</div>
                 </div>
                 <div class="stat">
                     <div class="stat_name">Year: </div>
@@ -126,201 +291,734 @@
             <h2>Store</h2>
             <hr style="border: none; border-top: 5px solid #ccab34; margin: 0 0 10px 0;" />
             <div class="store">
-                <button class="store_button" onclick="buy('house')">Buy a Tenament 🏠 ($100)</button>
-                <button class="store_button" onclick="buy('pump')">Buy a Water Pump 🚰 ($75)</button>
-                <button class="store_button" onclick="buy('air')">Clean Dirty Air ༄ ($150)</button>
+                <button class="store_button" id="buy-house" onclick="buy('house')">Buy a Tenament 🏠 ($50)</button>
+                <button class="store_button" id="buy-pump" onclick="buy('pump')">Buy a Water Pump 🚰 ($75)</button>
+                <button class="store_button" id="buy-air" onclick="buy('air')">Clean Dirty Air ༄ ($150)</button>
+                <button class="store_button" id="buy-air" onclick="buy('person')">Buy Extra Person ($15)</button>
             </div>
+            <br>
             <hr style="border: none; border-top: 5px solid #ccab34; margin: 0 0 10px 0;" />
-            <button class="year_button" onclick="progressYear()" id="year_button">Progress in History (Heading To Year <span
-                    id="next_year"></span>)</button>
+            <button class="year_button" onclick="progressYear()" id="year_button">Progress in History (Heading To Year
+                <span id="next_year"></span>)</button>
         </div>
         <div class="sim" id="simulation">
-            <div class="grid" id="sim-grid">
-                <button onclick="tileClicked(1, 10, this)">E</button>
-                <button onclick="tileClicked(2, 10, this)">E</button>
-                <button onclick="tileClicked(3, 10, this)">E</button>
-                <button onclick="tileClicked(4, 10, this)">E</button>
-                <button onclick="tileClicked(5, 10, this)">E</button>
-                <button onclick="tileClicked(6, 10, this)">E</button>
-                <button onclick="tileClicked(7, 10, this)">E</button>
-                <button onclick="tileClicked(8, 10, this)">E</button>
-                <button onclick="tileClicked(9, 10, this)">E</button>
-                <button onclick="tileClicked(10, 10, this)">E</button>
-                <button onclick="tileClicked(1, 9, this)">E</button>
-                <button onclick="tileClicked(2, 9, this)">E</button>
-                <button onclick="tileClicked(3, 9, this)">E</button>
-                <button onclick="tileClicked(4, 9, this)">E</button>
-                <button onclick="tileClicked(5, 9, this)">E</button>
-                <button onclick="tileClicked(6, 9, this)">E</button>
-                <button onclick="tileClicked(7, 9, this)">E</button>
-                <button onclick="tileClicked(8, 9, this)">E</button>
-                <button onclick="tileClicked(9, 9, this)">E</button>
-                <button onclick="tileClicked(10, 9, this)">E</button>
-                <button onclick="tileClicked(1, 8, this)">E</button>
-                <button onclick="tileClicked(2, 8, this)">E</button>
-                <button onclick="tileClicked(3, 8, this)">E</button>
-                <button onclick="tileClicked(4, 8, this)">E</button>
-                <button onclick="tileClicked(5, 8, this)">E</button>
-                <button onclick="tileClicked(6, 8, this)">E</button>
-                <button onclick="tileClicked(7, 8, this)">E</button>
-                <button onclick="tileClicked(8, 8, this)">E</button>
-                <button onclick="tileClicked(9, 8, this)">E</button>
-                <button onclick="tileClicked(10, 8, this)">E</button>
-                <button onclick="tileClicked(1, 7, this)">E</button>
-                <button onclick="tileClicked(2, 7, this)">E</button>
-                <button onclick="tileClicked(3, 7, this)">E</button>
-                <button onclick="tileClicked(4, 7, this)">E</button>
-                <button onclick="tileClicked(5, 7, this)">E</button>
-                <button onclick="tileClicked(6, 7, this)">E</button>
-                <button onclick="tileClicked(7, 7, this)">E</button>
-                <button onclick="tileClicked(8, 7, this)">E</button>
-                <button onclick="tileClicked(9, 7, this)">E</button>
-                <button onclick="tileClicked(10, 7, this)">E</button>
-                <button onclick="tileClicked(1, 6, this)">E</button>
-                <button onclick="tileClicked(2, 6, this)">E</button>
-                <button onclick="tileClicked(3, 6, this)">E</button>
-                <button onclick="tileClicked(4, 6, this)">E</button>
-                <button onclick="tileClicked(5, 6, this)">E</button>
-                <button onclick="tileClicked(6, 6, this)">E</button>
-                <button onclick="tileClicked(7, 6, this)">E</button>
-                <button onclick="tileClicked(8, 6, this)">E</button>
-                <button onclick="tileClicked(9, 6, this)">E</button>
-                <button onclick="tileClicked(10, 6, this)">E</button>
-                <button onclick="tileClicked(1, 5, this)">E</button>
-                <button onclick="tileClicked(2, 5, this)">E</button>
-                <button onclick="tileClicked(3, 5, this)">E</button>
-                <button onclick="tileClicked(4, 5, this)">E</button>
-                <button onclick="tileClicked(5, 5, this)">E</button>
-                <button onclick="tileClicked(6, 5, this)">E</button>
-                <button onclick="tileClicked(7, 5, this)">E</button>
-                <button onclick="tileClicked(8, 5, this)">E</button>
-                <button onclick="tileClicked(9, 5, this)">E</button>
-                <button onclick="tileClicked(10, 5, this)">E</button>
-                <button onclick="tileClicked(1, 4, this)">E</button>
-                <button onclick="tileClicked(2, 4, this)">E</button>
-                <button onclick="tileClicked(3, 4, this)">E</button>
-                <button onclick="tileClicked(4, 4, this)">E</button>
-                <button onclick="tileClicked(5, 4, this)">E</button>
-                <button onclick="tileClicked(6, 4, this)">E</button>
-                <button onclick="tileClicked(7, 4, this)">E</button>
-                <button onclick="tileClicked(8, 4, this)">E</button>
-                <button onclick="tileClicked(9, 4, this)">E</button>
-                <button onclick="tileClicked(10, 4, this)">E</button>
-                <button onclick="tileClicked(1, 3, this)">E</button>
-                <button onclick="tileClicked(2, 3, this)">E</button>
-                <button onclick="tileClicked(3, 3, this)">E</button>
-                <button onclick="tileClicked(4, 3, this)">E</button>
-                <button onclick="tileClicked(5, 3, this)">E</button>
-                <button onclick="tileClicked(6, 3, this)">E</button>
-                <button onclick="tileClicked(7, 3, this)">E</button>
-                <button onclick="tileClicked(8, 3, this)">E</button>
-                <button onclick="tileClicked(9, 3, this)">E</button>
-                <button onclick="tileClicked(10, 3, this)">E</button>
-                <button onclick="tileClicked(1, 2, this)">E</button>
-                <button onclick="tileClicked(2, 2, this)">E</button>
-                <button onclick="tileClicked(3, 2, this)">E</button>
-                <button onclick="tileClicked(4, 2, this)">E</button>
-                <button onclick="tileClicked(5, 2, this)">E</button>
-                <button onclick="tileClicked(6, 2, this)">E</button>
-                <button onclick="tileClicked(7, 2, this)">E</button>
-                <button onclick="tileClicked(8, 2, this)">E</button>
-                <button onclick="tileClicked(9, 2, this)">E</button>
-                <button onclick="tileClicked(10, 2, this)">E</button>
-                <button onclick="tileClicked(1, 1, this)">E</button>
-                <button onclick="tileClicked(2, 1, this)">E</button>
-                <button onclick="tileClicked(3, 1, this)">E</button>
-                <button onclick="tileClicked(4, 1, this)">E</button>
-                <button onclick="tileClicked(5, 1, this)">E</button>
-                <button onclick="tileClicked(6, 1, this)">E</button>
-                <button onclick="tileClicked(7, 1, this)">E</button>
-                <button onclick="tileClicked(8, 1, this)">E</button>
-                <button onclick="tileClicked(9, 1, this)">E</button>
-                <button onclick="tileClicked(10, 1, this)">E</button>
+            <div id="grid-container">
+                <div class="grid" id="sim-grid">
+                    <button onclick="tileClicked(1, 10, this)">🏭</button>
+                    <button onclick="tileClicked(2, 10, this)"></button>
+                    <button onclick="tileClicked(3, 10, this)"></button>
+                    <button onclick="tileClicked(4, 10, this)"></button>
+                    <button onclick="tileClicked(5, 10, this)"></button>
+                    <button onclick="tileClicked(6, 10, this)"></button>
+                    <button onclick="tileClicked(7, 10, this)"></button>
+                    <button onclick="tileClicked(8, 10, this)"></button>
+                    <button onclick="tileClicked(9, 10, this)"></button>
+                    <button onclick="tileClicked(10, 10, this)">🏭</button>
+                    <button onclick="tileClicked(1, 9, this)"></button>
+                    <button onclick="tileClicked(2, 9, this)"></button>
+                    <button onclick="tileClicked(3, 9, this)"></button>
+                    <button onclick="tileClicked(4, 9, this)"></button>
+                    <button onclick="tileClicked(5, 9, this)"></button>
+                    <button onclick="tileClicked(6, 9, this)"></button>
+                    <button onclick="tileClicked(7, 9, this)"></button>
+                    <button onclick="tileClicked(8, 9, this)"></button>
+                    <button onclick="tileClicked(9, 9, this)"></button>
+                    <button onclick="tileClicked(10, 9, this)"></button>
+                    <button onclick="tileClicked(1, 8, this)"></button>
+                    <button onclick="tileClicked(2, 8, this)"></button>
+                    <button onclick="tileClicked(3, 8, this)"></button>
+                    <button onclick="tileClicked(4, 8, this)"></button>
+                    <button onclick="tileClicked(5, 8, this)"></button>
+                    <button onclick="tileClicked(6, 8, this)"></button>
+                    <button onclick="tileClicked(7, 8, this)"></button>
+                    <button onclick="tileClicked(8, 8, this)"></button>
+                    <button onclick="tileClicked(9, 8, this)"></button>
+                    <button onclick="tileClicked(10, 8, this)"></button>
+                    <button onclick="tileClicked(1, 7, this)"></button>
+                    <button onclick="tileClicked(2, 7, this)"></button>
+                    <button onclick="tileClicked(3, 7, this)"></button>
+                    <button onclick="tileClicked(4, 7, this)"></button>
+                    <button onclick="tileClicked(5, 7, this)"></button>
+                    <button onclick="tileClicked(6, 7, this)"></button>
+                    <button onclick="tileClicked(7, 7, this)"></button>
+                    <button onclick="tileClicked(8, 7, this)"></button>
+                    <button onclick="tileClicked(9, 7, this)"></button>
+                    <button onclick="tileClicked(10, 7, this)"></button>
+                    <button onclick="tileClicked(1, 6, this)"></button>
+                    <button onclick="tileClicked(2, 6, this)"></button>
+                    <button onclick="tileClicked(3, 6, this)"></button>
+                    <button onclick="tileClicked(4, 6, this)"></button>
+                    <button onclick="tileClicked(5, 6, this)"></button>
+                    <button onclick="tileClicked(6, 6, this)"></button>
+                    <button onclick="tileClicked(7, 6, this)"></button>
+                    <button onclick="tileClicked(8, 6, this)"></button>
+                    <button onclick="tileClicked(9, 6, this)"></button>
+                    <button onclick="tileClicked(10, 6, this)"></button>
+                    <button onclick="tileClicked(1, 5, this)"></button>
+                    <button onclick="tileClicked(2, 5, this)"></button>
+                    <button onclick="tileClicked(3, 5, this)"></button>
+                    <button onclick="tileClicked(4, 5, this)"></button>
+                    <button onclick="tileClicked(5, 5, this)"></button>
+                    <button onclick="tileClicked(6, 5, this)"></button>
+                    <button onclick="tileClicked(7, 5, this)"></button>
+                    <button onclick="tileClicked(8, 5, this)"></button>
+                    <button onclick="tileClicked(9, 5, this)"></button>
+                    <button onclick="tileClicked(10, 5, this)"></button>
+                    <button onclick="tileClicked(1, 4, this)"></button>
+                    <button onclick="tileClicked(2, 4, this)"></button>
+                    <button onclick="tileClicked(3, 4, this)"></button>
+                    <button onclick="tileClicked(4, 4, this)"></button>
+                    <button onclick="tileClicked(5, 4, this)"></button>
+                    <button onclick="tileClicked(6, 4, this)"></button>
+                    <button onclick="tileClicked(7, 4, this)"></button>
+                    <button onclick="tileClicked(8, 4, this)"></button>
+                    <button onclick="tileClicked(9, 4, this)"></button>
+                    <button onclick="tileClicked(10, 4, this)"></button>
+                    <button onclick="tileClicked(1, 3, this)"></button>
+                    <button onclick="tileClicked(2, 3, this)"></button>
+                    <button onclick="tileClicked(3, 3, this)"></button>
+                    <button onclick="tileClicked(4, 3, this)"></button>
+                    <button onclick="tileClicked(5, 3, this)"></button>
+                    <button onclick="tileClicked(6, 3, this)"></button>
+                    <button onclick="tileClicked(7, 3, this)"></button>
+                    <button onclick="tileClicked(8, 3, this)"></button>
+                    <button onclick="tileClicked(9, 3, this)"></button>
+                    <button onclick="tileClicked(10, 3, this)"></button>
+                    <button onclick="tileClicked(1, 2, this)"></button>
+                    <button onclick="tileClicked(2, 2, this)"></button>
+                    <button onclick="tileClicked(3, 2, this)"></button>
+                    <button onclick="tileClicked(4, 2, this)"></button>
+                    <button onclick="tileClicked(5, 2, this)"></button>
+                    <button onclick="tileClicked(6, 2, this)"></button>
+                    <button onclick="tileClicked(7, 2, this)"></button>
+                    <button onclick="tileClicked(8, 2, this)"></button>
+                    <button onclick="tileClicked(9, 2, this)"></button>
+                    <button onclick="tileClicked(10, 2, this)"></button>
+                    <button onclick="tileClicked(1, 1, this)">🏭</button>
+                    <button onclick="tileClicked(2, 1, this)"></button>
+                    <button onclick="tileClicked(3, 1, this)"></button>
+                    <button onclick="tileClicked(4, 1, this)"></button>
+                    <button onclick="tileClicked(5, 1, this)"></button>
+                    <button onclick="tileClicked(6, 1, this)"></button>
+                    <button onclick="tileClicked(7, 1, this)"></button>
+                    <button onclick="tileClicked(8, 1, this)"></button>
+                    <button onclick="tileClicked(9, 1, this)"></button>
+                    <button onclick="tileClicked(10, 1, this)">🏭</button>
+                </div>
+                <div id="people-layer"></div>
             </div>
         </div>
         <div class="panel" id="primary_sources_panel">
-            <h2>Timeline through Priamry Sources</h2>
+            <h2>Timeline through Sources</h2>
             <hr style="border: none; border-top: 5px solid #ccab34; margin: 0 0 10px 0;" />
             <div id="primary_sources"></div>
         </div>
     </div>
     <script>
         let selectedType = "";
-        let money = 1000
+        let money = 375
         let typePrices = [
-            ["house", 150],
+            ["house", 50],
             ["pump", 75],
             ["air", 150]
         ]
         let houseTiles = [];
         let pumpTiles = [];
-        let factoryTiles = [];
-let years = [{year: 1813, text: "primary source", credits: "thanks to primary source"}];
-let currentYear = 0;
-        
+        let factoryTiles = [[1, 1], [1, 10], [10, 1], [10, 10]];
+        let years = [{ year: 1813, price: 500, workerMoney: 15 },
+        { year: 1832, price: 700, workerMoney: 30 },
+        { year: 1849, price: 1000, workerMoney: 45 },
+        { year: 1854, price: 1200, workerMoney: 50 },
+        { year: 1855, price: 1200, workerMoney: 70 },
+        { year: 1866, price: 0, workerMoney: 90 }]
+        let currentYear = years[0].year;
+        let people = []
+        let deaths = 0;
+
+        let lastSpawnTime = 0;
+        const spawnCooldown = 10000;
+
+        function getWorkerMoney() {
+            const entry = years.find(y => y.year === currentYear);
+            return entry ? entry.workerMoney : 5;
+        }
         function buy(type) {
-            
-            if(selectedType == type) {
+            if (type === "person") {
+                if (money < 15) {
+                    fundsWarning();
+                } else if (houseTiles.length * 3 > people.length - deaths) {
+                    money -= 15;
+                    pos = houseTiles[Math.floor(Math.random() * houseTiles.length)]
+                    people.push({
+                        x: pos[0],
+                        y: pos[1],
+                        vX: pos[0],
+                        vY: pos[1],
+                        hydrated: true,
+                        canWork: true,
+                        state: "idle",
+                        dead: false,
+                        workedLocked: false,
+                        element: createPersonElement(),
+                        waterTimer: null,
+                        waterLocked: false
+                    });
+                } else {
+                    alert("You do not have any house space for a new worker")
+                }
+            }
+            if (selectedType == type) {
                 selectedType = "";
+                document.getElementById("buy-" + type).classList.remove("selected");
             } else {
                 selectedType = type;
-            }
+                document.getElementById("buy-" + type).classList.add("selected");
+                switch (selectedType) {
+                    case "house":
+                        document.getElementById("buy-pump").classList.remove("selected");
+                        document.getElementById("buy-air").classList.remove("selected");
+                        break;
+                    case "pump":
+                        document.getElementById("buy-house").classList.remove("selected");
+                        document.getElementById("buy-air").classList.remove("selected");
+                        break;
+                    case "air":
+                        document.getElementById("buy-pump").classList.remove("selected");
+                        document.getElementById("buy-house").classList.remove("selected");
+                        break;
 
-            alert(type);
+                    default:
+                        break;
+                }
+            }
         }
-function updateMoney() {
-     document.getElementById("stat_money").innerHTML = "$" + money;
-}
+        function updateStats() {
+            document.getElementById("stat-money").innerHTML = "$" + money;
+
+            document.getElementById("stat-people").innerHTML =
+                people.filter(p => !p.dead).length;
+
+            document.getElementById("stat-deaths").innerHTML = deaths;
+        }
+        function createPersonElement() {
+
+            const el = document.createElement("div");
+
+            el.className = "person";
+            el.innerHTML = "🙂";
+
+            document
+                .getElementById("people-layer")
+                .appendChild(el);
+
+            return el;
+        }
         function tileClicked(x, y, button) {
-            alert(x + ", " + y);
-            if(selectedType != "") {
-                if(houseTiles.find(pt => pt[0] == x && pt[y] == y ) || factoryTiles.find(pt => pt[0] == x && pt[y] == y ) || pumpTiles.find(pt => pt[0] == x && pt[y] == y )) {
-                    alert("Tile is in use");
+            if (selectedType != "") {
+                if ((houseTiles.find(pt => pt[0] === x && pt[1] === y) || factoryTiles.find(pt => pt[0] === x && pt[1] === y) || pumpTiles.find(pt => pt[0] === x && pt[1] === y)) && selectedType != "air") {
+                    alert("Sorry, This tile is in use");
                 } else {
                     switch (selectedType) {
                         case "house":
-                            if(money >= typePrices[0][1]) {
+                            if (money >= typePrices[0][1]) {
                                 money -= typePrices[0][1];
                                 houseTiles.push([x, y]);
                                 button.innerHTML = "🏠";
-updateMoney();
+                                for (let i = 0; i < 3; i++) {
+                                    people.push({
+                                        x: x,
+                                        y: y,
+                                        vX: x,
+                                        vY: y,
+                                        hydrated: true,
+                                        canWork: true,
+                                        state: "idle",
+                                        dead: false,
+                                        workedLocked: false,
+                                        element: createPersonElement(),
+                                        waterTimer: null,
+                                        waterLocked: false
+                                    });
+                                }
+
+                                updateStats();
                             } else {
-                                alert("You dont got the funds");
+                                fundsWarning()
                             }
                             break;
                         case "pump":
-                            if(money >= typePrices[1][1]) {
+                            if (money >= typePrices[1][1]) {
                                 money -= typePrices[1][1];
                                 pumpTiles.push([x, y]);
                                 button.innerHTML = "🚰";
-updateMoney();
+                                updateStats();
                             } else {
-                                alert("You dont got the funds");
+                                fundsWarning()
                             }
                             break;
                         case "air":
-                            if(money >= typePrices[2][1]) {
+                            if (button.innerHTML == "༄") {
+                                alert("You cant clean while it is being cleaned");
+                                break;
+                            }
+                            if (money >= typePrices[2][1]) {
                                 money -= typePrices[2][1];
-updateMoney();
+                                updateStats();
+                                airTime(button)
+
                             } else {
-                                alert("You dont got the funds");
+                                fundsWarning()
                             }
                             break;
-                    
+
                         default:
                             break;
                     }
                 }
             }
         }
-        function progressYear() {
-             for(let i = 0; i < years.length - 1; i++) {
-if(years[i].year == currentYear) {
-currentYear = currentYear++;
-document.getElementById("stat-year").innerHTML = currentYear;
-}
+        function airTime(button) {
+            let previous = button.innerHTML;
+            button.innerHTML = "༄"
+            setTimeout(() => {
+                button.innerHTML = previous;
+
+            }, 3000)
         }
-updateMoney();
+        function progressYear() {
+            if (money > years.find(y => y.year === currentYear).price) {
+                money -= years.find(y => y.year === currentYear).price
+                for (let i = 0; i < years.length - 1; i++) {
+                    if (years[i].year == currentYear) {
+                        currentYear = years[i + 1].year;
+                        document.getElementById("stat-year").innerHTML = currentYear;
+                        renderSourcesForYear(currentYear);
+                        if (i + 2 < years.length) {
+                            document.getElementById("next_year").innerHTML = years[i + 2].year + " ($" + years[i + 1].price + ")";
+                        } else {
+                            document.getElementById("year_button").innerHTML = "You made it to the last year of this simulation! This button does noting";
+                        }
+                        break;
+                    }
+                }
+            } else {
+                fundsWarning();
+            }
+        }
+        let sources = [
+            {
+                year: 1813,
+                text: `Some merchants warn you about cholera "which struck with pain in the belly," to soldiers back in the day`,
+                credits: "1503 Correia in Gale Textbook",
+                source: `<a href="https://link.gale.com/apps/doc/CV2643450460/WHIC?u=mlin_n_burlhs&sid=bookmark-WHIC&xid=81929732">Cholera Epidemics: Five Pandemics in the 19th Century; alternate title: 19th Century Cholera Epidemics and the Development of Public Health Policies</a>`
+            },
+            {
+                year: 1832,
+                text: `Doctor John Snow starts investigating cholera and paitents claim that stay in London `,
+                credits: "Royal College of Surgeons",
+                source: `<a href="https://www.rcseng.ac.uk/library-and-publications/library/blog/mapping-disease-john-snow-and-cholera/">Mapping disease: John Snow and Cholera</a>`
+            },
+            {
+                year: 1849,
+                text: `John Snow publish his essay "On the Mode of Communication" aruging against an airborne spread`,
+                credits: "John Snow via Royal College of Surgeons",
+                source: `<a href="https://www.rcseng.ac.uk/library-and-publications/library/blog/mapping-disease-john-snow-and-cholera/">Mapping disease: John Snow and Cholera</a>`
+            },
+            {
+                year: 1854,
+                text: "The outbreak in Soho appears tied to a single water pump on Broad Street.”",
+                credits: "John Snow via Cureus",
+                source: `<a href="https://doi.org/10.7759/cureus.67602">John Snow: The Pioneer of Modern Epidemiology and Anesthesia</a>`
+            },
+            {
+                year: 1855,
+                text: `John Snow edits his essay adding that he "I allude to the mixture of the cholera evacuations with the water"`,
+                credits: "John Snow",
+                source: `<a href="https://johnsnow.matrix.msu.edu/work.php/id=15-78-52/">On the Mode of Communication of Cholera</a>`
+            },
+            {
+                year: 1866,
+                text: "LONDON WILL COMPLETE NEW SEWER NETWORK THAT LIMIT CHOLERA SPREAD YAY!",
+                credits: "",
+                source: ``
+            }
+        ];
+        function renderSourcesForYear(year) {
+            const container = document.getElementById("primary_sources");
+
+            sources.forEach(s => {
+                if (s.year === year) {
+
+                    const div = document.createElement("div");
+                    div.style.marginBottom = "10px";
+                    div.style.padding = "8px";
+                    div.style.background = "#7c4803";
+                    div.style.color = "white";
+                    div.style.borderRadius = "8px";
+
+                    div.innerHTML = `
+                <div><b>${s.year}</b></div>
+                <div>${s.text}</div>
+                <div style="font-size:12px; opacity:0.8;">${s.credits}</div>
+                <div>${s.source}</div>
+            `;
+
+                    container.appendChild(div);
+                }
+            });
+        }
+
+
+
+        document.getElementById("stat-year").innerHTML = currentYear;
+        document.getElementById("next_year").innerHTML = years[1].year + " ($" + years[0].price + ")";;
+        updateStats();
+
+        renderSourcesForYear(currentYear)
+        function getButton(x, y) {
+            const index = (10 - y) * 10 + (x - 1);
+            return document.querySelectorAll("#sim-grid button")[index];
+        }
+
+        function findNearestPump(x, y) {
+            if (pumpTiles.length === 0) return null;
+
+            let nearest = pumpTiles[0];
+            let bestDist = Infinity;
+
+            pumpTiles.forEach(pump => {
+                const dist =
+                    Math.abs(pump[0] - x) +
+                    Math.abs(pump[1] - y);
+
+                if (dist < bestDist) {
+                    bestDist = dist;
+                    nearest = pump;
+                }
+            });
+
+            return nearest;
+        }
+
+        function findNearestFactory(x, y) {
+            if (factoryTiles.length === 0) return null;
+
+            let nearest = factoryTiles[0];
+            let bestDist = Infinity;
+
+            factoryTiles.forEach(pump => {
+                const dist =
+                    Math.abs(pump[0] - x) +
+                    Math.abs(pump[1] - y);
+
+                if (dist < bestDist) {
+                    bestDist = dist;
+                    nearest = pump;
+                }
+            });
+
+            return nearest;
+        }
+
+
+        function animatePeople() {
+
+            people.forEach(person => {
+
+                const speed = 0.08;
+
+                person.vX +=
+                    (person.x - person.vX) * speed;
+
+                person.vY +=
+                    (person.y - person.vY) * speed;
+
+                updatePersonVisual(person);
+            });
+
+            requestAnimationFrame(animatePeople);
+        }
+
+        animatePeople();
+        function getAlivePeople() {
+            return people.filter(p => !p.dead);
+        }
+        function updatePersonVisual(person) {
+
+            const grid = document.getElementById("sim-grid");
+
+            const tileWidth = grid.clientWidth / 10;
+            const tileHeight = grid.clientHeight / 10;
+
+            person.element.style.left =
+                ((person.vX - 0.5) * tileWidth) + "px";
+
+            person.element.style.top =
+                ((10.5 - person.vY) * tileHeight) + "px";
+            if (person.dead) {
+                person.element.className = "grave";
+                person.element.innerHTML = "🪦";
+                setTimeout(() => {
+                    person.element.remove();
+                }, 3000);
+            }
+            else if (person.state === "findWater") {
+                person.element.innerHTML = "🥵";
+            }
+            else if (person.state === "idle") {
+
+                person.element.innerHTML = "😐";
+            } else if (person.state === "work") {
+                person.element.innerHTML = "👷🏽‍♂️";
+            }
+            else {
+
+                person.element.innerHTML = "🙂";
+            }
+        }
+
+        function updatePeople() {
+
+            people.forEach(person => {
+
+                if (person.dead) return;
+
+                const r = Math.random();
+
+                if (!person.workedLocked && !person.waterLocked) {
+                    if (r < 0.2) {
+                        person.state = "roam";
+                    }
+                    else if (r < 0.5 && !person.waterLocked) {
+                        person.state = "findWater";
+                        if (!person.waterTimer) {
+                            person.waterLocked = true;
+
+                            person.waterTimer = setTimeout(() => {
+                                if (!person.dead && person.state === "findWater") {
+                                    killPerson(person);
+                                }
+                            }, 3000);
+                        }
+                    } else if (r < 0.6 && person.state == "findWater") {
+                        person.state = "findWater";
+                    }
+                    else if (r < 0.9) {
+                        if (person.canWork == true) {
+                            person.state = "work";
+                            person.workedLocked = true;
+                        } else {
+                            person.canWork == true;
+                            if (r < 0.7) {
+                                person.state = "roam";
+                            } else if (r < 0.9) {
+                                person.state = "findWater";
+                            }
+                        }
+                    }
+                    else {
+                        person.state = "idle";
+                    }
+                }
+
+
+                if (person.state === "roam") {
+
+                    person.x += Math.floor(Math.random() * 3) - 1;
+                    person.y += Math.floor(Math.random() * 3) - 1;
+
+                    person.x = Math.max(1, Math.min(10, person.x));
+                    person.y = Math.max(1, Math.min(10, person.y));
+                }
+
+                if (person.state === "work") {
+
+                    const factory = findNearestFactory(person.x, person.y);
+
+                    if (factory) {
+
+                        if (person.x < factory[0]) person.x++;
+                        else if (person.x > factory[0]) person.x--;
+
+                        if (person.y < factory[1]) person.y++;
+                        else if (person.y > factory[1]) person.y--;
+
+                        if (person.x === factory[0] &&
+                            person.y === factory[1]) {
+
+                            person.canWork = false;
+                            setTimeout(() => {
+                                person.workedLocked = false
+                                money += getWorkerMoney();
+                                updateStats();
+                            }, 2000)
+                        }
+                    }
+                }
+
+
+                if (person.state === "findWater") {
+
+                    const pump = findNearestPump(person.x, person.y);
+
+                    if (pump) {
+
+                        if (person.x < pump[0]) person.x++;
+                        else if (person.x > pump[0]) person.x--;
+
+                        if (person.y < pump[1]) person.y++;
+                        else if (person.y > pump[1]) person.y--;
+
+                        if (person.x === pump[0] &&
+                            person.y === pump[1]) {
+
+                            clearTimeout(person.waterTimer);
+                            person.waterTimer = null;
+                            person.waterLocked = false;
+                            const alive = getAlivePeople();
+
+                            if (alive.length > 2) {
+                                if (Math.random() < 0.2) {
+                                    person.dead = true;
+                                    deaths++;
+                                }
+                            }
+                        }
+                    }
+                }
+                updatePersonVisual(person);
+            });
+            trySpawnNewPerson();
+        }
+        function killPerson(person) {
+            if (person.dead) return;
+
+            person.dead = true;
+            deaths++;
+            updateStats();
+
+            person.element.innerHTML = "🪦";
+            person.element.className = "grave";
+
+            setTimeout(() => {
+                person.element.remove();
+            }, 3000);
+        }
+
+        function trySpawnNewPerson() {
+            const alive = getAlivePeople();
+
+            const now = Date.now();
+
+            if (alive.length >= 2 && now - lastSpawnTime >= spawnCooldown) {
+
+                if (Math.random() < 0.5) { // chance to actually spawn
+                    const parent = alive[Math.floor(Math.random() * alive.length)];
+
+                    const newPerson = {
+                        x: parent.x,
+                        y: parent.y,
+                        vX: parent.x,
+                        vY: parent.y,
+                        hydrated: true,
+                        canWork: true,
+                        state: "idle",
+                        dead: false,
+                        workedLocked: false,
+                        element: createPersonElement()
+                    };
+
+                    people.push(newPerson);
+
+                    lastSpawnTime = now; // reset cooldown only when spawn happens
+                }
+            }
+        }
+        function fundsWarning() {
+            alert("You do not have enough money for this")
+        }
+
+        function renderSourcesForYear(year) {
+            const container = document.getElementById("primary_sources");
+
+            sources.forEach(s => {
+                if (s.year === year) {
+
+                    const div = document.createElement("div");
+                    div.style.marginBottom = "10px";
+                    div.style.padding = "8px";
+                    div.style.background = "#7c4803";
+                    div.style.color = "white";
+                    div.style.borderRadius = "8px";
+
+                    div.innerHTML = `
+                    <div><b>${s.year}</b></div>
+                    <div>${s.text}</div>
+                    <div style="font-size:12px; opacity:0.8;">${s.credits}</div>
+                    <div>${s.source}</div>
+                `;
+
+                    container.appendChild(div);
+                }
+            });
+        }
+
+        window.addEventListener("resize", () => {
+            people.forEach(updatePersonVisual);
+        });
+        setInterval(updatePeople, 1000);
+        updateStats();
+
+
+    </script>
+    <script>
+        const statsPanel = document.getElementById("game_changes");
+        const simPanel = document.getElementById("simulation");
+        const sourcePanel = document.getElementById("primary_sources_panel");
+
+        function updatePanelSizes() {
+            statsPanel.style.flex =
+                document.getElementById("stats-slider").value;
+
+            simPanel.style.flex =
+                document.getElementById("sim-slider").value;
+
+            sourcePanel.style.flex =
+                document.getElementById("source-slider").value;
+
+            updateStatsLayout();
+            people.forEach(updatePersonVisual);
+        }
+
+        document.getElementById("stats-slider")
+            .addEventListener("input", updatePanelSizes);
+
+        document.getElementById("sim-slider")
+            .addEventListener("input", updatePanelSizes);
+
+        document.getElementById("source-slider")
+            .addEventListener("input", updatePanelSizes);
+
+        updatePanelSizes();
+        function updateStatsLayout() {
+            const statsPanel = document.getElementById("game_changes");
+            const statsGrid = document.getElementById("stats");
+
+            if (statsPanel.offsetWidth < 250) {
+                statsGrid.style.gridTemplateColumns = "1fr";
+            } else {
+                statsGrid.style.gridTemplateColumns = "repeat(2, 1fr)";
+            }
+        }
+
+        function startGame() {
+            document.getElementById("start-overlay").style.display = "none";
+        }
+
+        function alert(str) {
+            document.getElementById("start-overlay").style.display = "flex";
+            document.getElementById("alerttx").innerHTML = str + `<br><button onclick="startGame()">OK</button>`
+        }
     </script>
 </body>
 
