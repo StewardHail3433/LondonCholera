@@ -294,7 +294,7 @@
                 <button class="store_button" id="buy-house" onclick="buy('house')">Buy a Tenament 🏠 ($50)</button>
                 <button class="store_button" id="buy-pump" onclick="buy('pump')">Buy a Water Pump 🚰 ($75)</button>
                 <button class="store_button" id="buy-air" onclick="buy('air')">Clean Dirty Air ༄ ($150)</button>
-                <button class="store_button" id="buy-air" onclick="buy('person')">Buy Extra Person ($15)</button>
+                <button class="store_button" id="buy-air" onclick="buy('person')">Hire Extra Person ($15)</button>
             </div>
             <br>
             <hr style="border: none; border-top: 5px solid #ccab34; margin: 0 0 10px 0;" />
@@ -878,7 +878,7 @@
                             const alive = getAlivePeople();
 
                             if (alive.length > 2) {
-                                if (Math.random() < 0.2) {
+                                if (Math.random() < 0.3 * (currentYear > 1833 ? 0.5 : 1)) {
                                     person.dead = true;
                                     deaths++;
                                 }
